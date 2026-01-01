@@ -10,7 +10,10 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     libicu-dev \
+    libzip-dev \
+    zlib1g-dev \
     && docker-php-ext-configure intl \
+    && docker-php-ext-configure zip \
     && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd intl zip \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*

@@ -9,170 +9,56 @@
     <link rel="stylesheet" href="https://unpkg.com/@vkontakte/vkui/dist/vkui.css">
     
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-        }
-        
-        #root {
-            height: 100vh;
-        }
-        
-        .messenger-container {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .header {
-            background: #f5f5f5;
-            padding: 16px;
-            text-align: center;
-            border-bottom: 1px solid #e1e3e6;
-        }
-        
-        .tabs {
-            display: flex;
-            background: #f5f5f5;
-            border-bottom: 1px solid #e1e3e6;
-        }
-        
-        .tabs button {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            background: transparent;
-            cursor: pointer;
-        }
-        
-        .tabs button.active {
-            border-bottom: 2px solid #2688eb;
-            color: #2688eb;
-        }
-        
-        .content {
-            flex: 1;
-            overflow-y: auto;
-        }
-        
-        .chat-item {
-            display: flex;
-            align-items: center;
-            padding: 16px;
-            border-bottom: 1px solid #e1e3e6;
-            cursor: pointer;
-        }
-        
-        .chat-avatar img {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-        }
-        
-        .chat-info {
-            flex: 1;
-            margin-left: 16px;
-        }
-        
-        .chat-name {
-            font-weight: bold;
-        }
-        
-        .chat-last-message {
-            color: #818c99;
-            font-size: 14px;
-        }
-        
-        .chat-time {
-            color: #818c99;
-            font-size: 12px;
-        }
-        
-        .chat-unread {
-            background: #2688eb;
-            color: white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-        }
-        
-        .loading {
-            text-align: center;
-            padding: 20px;
-        }
-        
-        .chat-container {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .chat-header {
-            background: #f5f5f5;
-            padding: 16px;
-            display: flex;
-            align-items: center;
-            border-bottom: 1px solid #e1e3e6;
-        }
-        
-        .chat-messages {
-            flex: 1;
-            padding: 16px;
-            overflow-y: auto;
-        }
-        
-        .message {
+        .message-bubble {
             max-width: 70%;
             padding: 12px 16px;
             border-radius: 18px;
             margin-bottom: 8px;
         }
         
-        .message.sent {
+        .message-sender {
             background-color: #2688eb;
             color: white;
             margin-left: auto;
         }
         
-        .message.received {
+        .message-receiver {
             background-color: #f0f1f3;
             color: #000;
         }
         
-        .message-time {
-            font-size: 11px;
-            opacity: 0.7;
-            margin-top: 4px;
-            text-align: right;
-        }
-        
-        .chat-input {
-            padding: 16px;
-            background: #f5f5f5;
-            border-top: 1px solid #e1e3e6;
+        .voice-message {
             display: flex;
-        }
-        
-        .chat-input input {
-            flex: 1;
+            align-items: center;
+            gap: 12px;
             padding: 8px 12px;
-            border: 1px solid #e1e3e6;
-            border-radius: 18px;
-            margin-right: 8px;
-        }
-        
-        .chat-input button {
-            padding: 8px 16px;
-            background: #2688eb;
-            color: white;
-            border: none;
+            background-color: #f0f1f3;
             border-radius: 18px;
             cursor: pointer;
+        }
+        
+        .attachment-preview {
+            max-width: 200px;
+            border-radius: 8px;
+            margin-top: 8px;
+        }
+        
+        .online-status {
+            width: 12px;
+            height: 12px;
+            background-color: #4bb34b;
+            border-radius: 50%;
+            border: 2px solid white;
+            position: absolute;
+            bottom: 0;
+            right: 0;
+        }
+        
+        .typing-indicator {
+            font-style: italic;
+            color: #818c99;
+            font-size: 14px;
+            padding: 8px 16px;
         }
     </style>
 </head>
@@ -189,7 +75,690 @@
     <!-- VKUI -->
     <script src="https://unpkg.com/@vkontakte/vkui/dist/vkui.js"></script>
 
-    <!-- Custom scripts -->
-    <script src="js/messenger.js"></script>
+    <script type="text/babel">
+        const { 
+            AdaptivityProvider, 
+            ConfigProvider, 
+            AppRoot, 
+            SplitLayout, 
+            SplitCol, 
+            SplitPane,
+            View,
+            Panel,
+            PanelHeader,
+            PanelHeaderBack,
+            Group,
+            List,
+            Cell,
+            Header,
+            Div,
+            SimpleCell,
+            Avatar,
+            Badge,
+            IconButton,
+            FixedLayout,
+            HorizontalScroll,
+            Tabs,
+            Tab,
+            Placeholder,
+            Spinner,
+            Button,
+            Input,
+            FormItem,
+            FormLayout,
+            Textarea,
+            ModalRoot,
+            ModalPage,
+            ModalPageHeader,
+            withModalRootContext
+        } = VKUI;
+
+        const Icon28MessageOutline = VKIcons.Icon28MessageOutline;
+        const Icon28Users3Outline = VKIcons.Icon28Users3Outline;
+        const Icon28SearchOutline = VKIcons.Icon28SearchOutline;
+        const Icon28AddOutline = VKIcons.Icon28AddOutline;
+        const Icon28AttachOutline = VKIcons.Icon28AttachOutline;
+        const Icon28MicrophoneOutline = VKIcons.Icon28MicrophoneOutline;
+        const Icon28Send = VKIcons.Icon28Send;
+        const Icon28MoreHorizontal = VKIcons.Icon28MoreHorizontal;
+        const Icon24Chevron = VKIcons.Icon24Chevron;
+
+        class MessengerApp extends React.Component {
+            constructor(props) {
+                super(props);
+                
+                // Проверяем авторизацию
+                const token = localStorage.getItem('token');
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                
+                this.state = {
+                    activeView: token ? 'chats' : 'login',
+                    currentUser: user,
+                    token: token,
+                    chats: [],
+                    contacts: [],
+                    messages: {},
+                    currentChatId: null,
+                    newMessage: '',
+                    isRecording: false,
+                    recordingTime: 0,
+                    modal: null,
+                    isLoading: false,
+                    searchQuery: '',
+                    activeTab: 'chats',
+                    searchResults: []
+                };
+                
+                if (token) {
+                    this.loadChats();
+                    this.loadContacts();
+                } else {
+                    window.location.href = 'login.html';
+                }
+            }
+
+            loadChats = async () => {
+                this.setState({ isLoading: true });
+                
+                try {
+                    // Здесь будет API вызов для загрузки чатов
+                    // Пока используем тестовые данные
+                    const response = await fetch('/api/chats.php?action=get_chats', {
+                        headers: {
+                            'Authorization': `Bearer ${this.state.token}`
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.setState({ chats: data.chats });
+                    }
+                } catch (error) {
+                    console.error('Error loading chats:', error);
+                    
+                    // Тестовые данные на случай ошибки
+                    const chats = [
+                        {
+                            id: 1,
+                            name: 'Алексей Петров',
+                            avatar: 'https://sun9-71.userapi.com/s/v1/if1/NVdDJiBmK4J8mjiKz7wEeN7tX8Q9r0Y1.jpg',
+                            lastMessage: 'Привет! Как дела?',
+                            time: '14:30',
+                            unread: 2,
+                            online: true
+                        },
+                        {
+                            id: 2,
+                            name: 'Мария Иванова',
+                            avatar: 'https://sun9-59.userapi.com/s/v1/if1/9Y8aBcDeFgHiJkLmNoPqRsTuVwXyZ123.jpg',
+                            lastMessage: 'Отправила документы',
+                            time: '12:15',
+                            unread: 0,
+                            online: false
+                        }
+                    ];
+                    
+                    this.setState({ chats });
+                } finally {
+                    this.setState({ isLoading: false });
+                }
+            };
+
+            loadContacts = async () => {
+                try {
+                    const response = await fetch('/api/contacts.php?action=get_contacts', {
+                        headers: {
+                            'Authorization': `Bearer ${this.state.token}`
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.setState({ contacts: data.contacts });
+                    }
+                } catch (error) {
+                    console.error('Error loading contacts:', error);
+                    
+                    // Тестовые данные
+                    const contacts = [
+                        {
+                            id: 1,
+                            first_name: 'Алексей',
+                            last_name: 'Петров',
+                            phone: '+7 999 123-45-67',
+                            avatar: 'https://sun9-71.userapi.com/s/v1/if1/NVdDJiBmK4J8mjiKz7wEeN7tX8Q9r0Y1.jpg'
+                        },
+                        {
+                            id: 2,
+                            first_name: 'Мария',
+                            last_name: 'Иванова',
+                            phone: '+7 999 765-43-21',
+                            avatar: 'https://sun9-59.userapi.com/s/v1/if1/9Y8aBcDeFgHiJkLmNoPqRsTuVwXyZ123.jpg'
+                        }
+                    ];
+                    
+                    this.setState({ contacts });
+                }
+            };
+
+            loadMessages = async (chatId) => {
+                try {
+                    const response = await fetch(`/api/chats.php?action=get_messages&chat_id=${chatId}`, {
+                        headers: {
+                            'Authorization': `Bearer ${this.state.token}`
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.setState(prevState => ({
+                            messages: {
+                                ...prevState.messages,
+                                [chatId]: data.messages
+                            }
+                        }));
+                    }
+                } catch (error) {
+                    console.error('Error loading messages:', error);
+                    
+                    // Тестовые сообщения
+                    const messages = [
+                        {
+                            id: 1,
+                            sender_id: 2,
+                            content: 'Привет!',
+                            type: 'text',
+                            created_at: '2024-01-01 14:30:00'
+                        },
+                        {
+                            id: 2,
+                            sender_id: this.state.currentUser.id,
+                            content: 'Привет! Как дела?',
+                            type: 'text',
+                            created_at: '2024-01-01 14:31:00'
+                        }
+                    ];
+                    
+                    this.setState(prevState => ({
+                        messages: {
+                            ...prevState.messages,
+                            [chatId]: messages
+                        }
+                    }));
+                }
+            };
+
+            sendMessage = async () => {
+                if (!this.state.newMessage.trim() || !this.state.currentChatId) return;
+                
+                const message = {
+                    id: Date.now(),
+                    sender_id: this.state.currentUser.id,
+                    content: this.state.newMessage,
+                    type: 'text',
+                    created_at: new Date().toISOString()
+                };
+                
+                // Добавляем сообщение в локальный стейт
+                this.setState(prevState => ({
+                    messages: {
+                        ...prevState.messages,
+                        [prevState.currentChatId]: [
+                            ...(prevState.messages[prevState.currentChatId] || []),
+                            message
+                        ]
+                    },
+                    newMessage: ''
+                }));
+                
+                // Отправляем сообщение на сервер
+                try {
+                    const response = await fetch('/api/chats.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${this.state.token}`
+                        },
+                        body: JSON.stringify({
+                            action: 'send_message',
+                            chat_id: this.state.currentChatId,
+                            content: message.content,
+                            type: 'text'
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        // Обновляем сообщение с данными из сервера
+                        const updatedMessages = this.state.messages[this.state.currentChatId].map(msg => 
+                            msg.id === message.id ? data.message : msg
+                        );
+                        
+                        this.setState(prevState => ({
+                            messages: {
+                                ...prevState.messages,
+                                [prevState.currentChatId]: updatedMessages
+                            }
+                        }));
+                    }
+                } catch (error) {
+                    console.error('Error sending message:', error);
+                }
+            };
+
+            startRecording = () => {
+                this.setState({ isRecording: true, recordingTime: 0 });
+                
+                // Симуляция записи
+                this.recordingInterval = setInterval(() => {
+                    this.setState(prevState => ({
+                        recordingTime: prevState.recordingTime + 1
+                    }));
+                }, 1000);
+            };
+
+            stopRecording = () => {
+                clearInterval(this.recordingInterval);
+                this.setState({ isRecording: false, recordingTime: 0 });
+                
+                // Здесь будет логика отправки голосового сообщения
+            };
+
+            formatTime = (seconds) => {
+                const mins = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                return `${mins}:${secs.toString().padStart(2, '0')}`;
+            };
+
+            openChat = (chatId) => {
+                this.setState({ currentChatId: chatId });
+                this.loadMessages(chatId);
+            };
+
+            logout = () => {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = 'login.html';
+            };
+
+            renderChatsList = () => (
+                <Group>
+                    {this.state.chats.map(chat => (
+                        <SimpleCell
+                            key={chat.id}
+                            before={
+                                <div style={{ position: 'relative' }}>
+                                    <Avatar src={chat.avatar} size={48} />
+                                    {chat.online && <div className="online-status"></div>}
+                                </div>
+                            }
+                            after={
+                                <>
+                                    <Div style={{ color: '#818c99', fontSize: '13px' }}>
+                                        {chat.time}
+                                    </Div>
+                                    {chat.unread > 0 && (
+                                        <Badge mode="prominent">{chat.unread}</Badge>
+                                    )}
+                                </>
+                            }
+                            subtitle={chat.lastMessage}
+                            onClick={() => this.openChat(chat.id)}
+                        >
+                            {chat.name}
+                        </SimpleCell>
+                    ))}
+                </Group>
+            );
+
+            renderContactsList = () => (
+                <Group>
+                    {this.state.contacts.map(contact => (
+                        <SimpleCell
+                            key={contact.id}
+                            before={<Avatar src={contact.avatar} size={48} />}
+                            after={<Icon24Chevron />}
+                            onClick={() => this.openChat(contact.id)}
+                        >
+                            {`${contact.first_name} ${contact.last_name}`}
+                            <Div style={{ color: '#818c99', fontSize: '13px' }}>
+                                {contact.phone}
+                            </Div>
+                        </SimpleCell>
+                    ))}
+                </Group>
+            );
+
+            renderMessages = () => {
+                const messages = this.state.messages[this.state.currentChatId] || [];
+                
+                return (
+                    <Group>
+                        <Div style={{ minHeight: 'calc(100vh - 200px)' }}>
+                            {messages.map(message => (
+                                <div
+                                    key={message.id}
+                                    className={`message-bubble ${
+                                        message.sender_id === this.state.currentUser.id 
+                                            ? 'message-sender' 
+                                            : 'message-receiver'
+                                    }`}
+                                    style={{
+                                        marginLeft: message.sender_id === this.state.currentUser.id ? 'auto' : 0,
+                                        marginRight: message.sender_id !== this.state.currentUser.id ? 'auto' : 0
+                                    }}
+                                >
+                                    {message.content}
+                                    <div style={{ 
+                                        fontSize: '11px', 
+                                        opacity: 0.7, 
+                                        marginTop: '4px',
+                                        textAlign: message.sender_id === this.state.currentUser.id ? 'right' : 'left'
+                                    }}>
+                                        {new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </div>
+                                </div>
+                            ))}
+                            
+                            {this.state.isRecording && (
+                                <Div className="typing-indicator">
+                                    🎤 Запись голосового сообщения... {this.formatTime(this.state.recordingTime)}
+                                </Div>
+                            )}
+                        </Div>
+                        
+                        <FixedLayout vertical="bottom">
+                            <Div style={{ backgroundColor: 'white', padding: '8px' }}>
+                                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                    <IconButton>
+                                        <Icon28AttachOutline />
+                                    </IconButton>
+                                    
+                                    {this.state.isRecording ? (
+                                        <Button
+                                            mode="destructive"
+                                            size="l"
+                                            stretched
+                                            onClick={this.stopRecording}
+                                        >
+                                            Отменить
+                                        </Button>
+                                    ) : (
+                                        <Textarea
+                                            value={this.state.newMessage}
+                                            onChange={(e) => this.setState({ newMessage: e.target.value })}
+                                            placeholder="Сообщение..."
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter' && !e.shiftKey) {
+                                                    e.preventDefault();
+                                                    this.sendMessage();
+                                                }
+                                            }}
+                                        />
+                                    )}
+                                    
+                                    <IconButton
+                                        onClick={this.state.isRecording ? this.stopRecording : this.startRecording}
+                                    >
+                                        <Icon28MicrophoneOutline 
+                                            style={{ 
+                                                color: this.state.isRecording ? '#e64646' : '#2688eb' 
+                                            }} 
+                                        />
+                                    </IconButton>
+                                    
+                                    {!this.state.isRecording && (
+                                        <IconButton 
+                                            disabled={!this.state.newMessage.trim()}
+                                            onClick={this.sendMessage}
+                                        >
+                                            <Icon28Send />
+                                        </IconButton>
+                                    )}
+                                </div>
+                            </Div>
+                        </FixedLayout>
+                    </Group>
+                );
+            };
+
+            renderSearchUsers = () => (
+                <Group>
+                    <Div>
+                        <Button 
+                            size="l" 
+                            mode="tertiary" 
+                            onClick={() => this.setState({ activeView: 'chats', activeTab: 'contacts' })}
+                        >
+                            Назад
+                        </Button>
+                    </Div>
+                    
+                    <FormItem top="Поиск по номеру телефона">
+                        <Input
+                            type="tel"
+                            placeholder="Введите номер телефона"
+                            value={this.state.searchQuery}
+                            onChange={(e) => this.setState({ searchQuery: e.target.value })}
+                            after={
+                                <Button
+                                    mode="tertiary"
+                                    onClick={async () => {
+                                        await this.searchUsersByPhone(this.state.searchQuery);
+                                        this.setState({ activeView: 'search_users' });
+                                    }}
+                                >
+                                    Найти
+                                </Button>
+                            }
+                        />
+                    </FormItem>
+                    
+                    <FormItem top="Результаты поиска">
+                        {this.state.searchResults && this.state.searchResults.length > 0 ? (
+                            this.state.searchResults.map(user => (
+                                <SimpleCell
+                                    key={user.id}
+                                    before={<Avatar src={user.avatar} size={48} />}
+                                    after={
+                                        <Button
+                                            mode="primary"
+                                            size="s"
+                                            onClick={() => this.addContact(user.id)}
+                                        >
+                                            Добавить
+                                        </Button>
+                                    }
+                                >
+                                    {`${user.first_name} ${user.last_name}`}
+                                    <Div style={{ color: '#818c99', fontSize: '13px' }}>
+                                        {user.phone}
+                                    </Div>
+                                </SimpleCell>
+                            ))
+                        ) : (
+                            <Div style={{ textAlign: 'center', color: '#818c99' }}>
+                                Нет результатов поиска
+                            </Div>
+                        )}
+                    </FormItem>
+                </Group>
+            );
+
+            searchUsersByPhone = async (phone) => {
+                this.setState({ isLoading: true });
+                
+                try {
+                    const response = await fetch(`/api/users.php?action=search_by_phone&phone=${encodeURIComponent(phone)}`, {
+                        headers: {
+                            'Authorization': `Bearer ${this.state.token}`
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.setState({ searchResults: data.users });
+                        return data.users;
+                    } else {
+                        console.error('Error searching users:', data.error);
+                        this.setState({ searchResults: [] });
+                        return [];
+                    }
+                } catch (error) {
+                    console.error('Error searching users:', error);
+                    this.setState({ searchResults: [] });
+                    return [];
+                } finally {
+                    this.setState({ isLoading: false });
+                }
+            };
+
+            addContact = async (userId) => {
+                try {
+                    const response = await fetch('/api/contacts.php?action=add_contact', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${this.state.token}`
+                        },
+                        body: JSON.stringify({
+                            contact_user_id: userId
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        alert('Контакт добавлен');
+                        // Перезагружаем список контактов
+                        this.loadContacts();
+                    } else {
+                        alert('Ошибка: ' + data.error);
+                    }
+                } catch (error) {
+                    console.error('Error adding contact:', error);
+                    alert('Ошибка добавления контакта');
+                }
+            };
+
+            render() {
+                return (
+                    <ConfigProvider>
+                        <AdaptivityProvider>
+                            <AppRoot>
+                                <SplitLayout
+                                    header={<PanelHeader separator={false} />}
+                                    style={{ justifyContent: 'center' }}
+                                >
+                                    <SplitCol minWidth={320} width="100%" maxWidth={480}>
+                                        {this.state.currentChatId ? (
+                                            <View activePanel="messages">
+                                                <Panel id="messages">
+                                                    <PanelHeader
+                                                        before={
+                                                            <PanelHeaderBack 
+                                                                onClick={() => this.setState({ currentChatId: null })}
+                                                            />
+                                                        }
+                                                        after={
+                                                            <IconButton onClick={() => this.logout()}>
+                                                                <Icon28MoreHorizontal />
+                                                            </IconButton>
+                                                        }
+                                                    >
+                                                        Чат
+                                                    </PanelHeader>
+                                                    {this.renderMessages()}
+                                                </Panel>
+                                            </View>
+                                        ) : (
+                                            <View activePanel={this.state.activeView}>
+                                                <Panel id="chats">
+                                                    <PanelHeader
+                                                        before={
+                                                            <IconButton onClick={() => this.logout()}>
+                                                                <Icon28MoreHorizontal />
+                                                            </IconButton>
+                                                        }
+                                                    >
+                                                        Messenger
+                                                    </PanelHeader>
+                                                    
+                                                    <Tabs>
+                                                        <Tab
+                                                            selected={this.state.activeTab === 'chats'}
+                                                            onClick={() => this.setState({ activeTab: 'chats' })}
+                                                        >
+                                                            <Icon28MessageOutline />
+                                                            Чаты
+                                                        </Tab>
+                                                        <Tab
+                                                            selected={this.state.activeTab === 'contacts'}
+                                                            onClick={() => this.setState({ activeTab: 'contacts' })}
+                                                        >
+                                                            <Icon28Users3Outline />
+                                                            Контакты
+                                                        </Tab>
+                                                    </Tabs>
+                                                    
+                                                    {this.state.isLoading ? (
+                                                        <Div style={{ display: 'flex', justifyContent: 'center', padding: '20px' }}>
+                                                            <Spinner size="large" />
+                                                        </Div>
+                                                    ) : this.state.activeTab === 'chats' ? (
+                                                        this.renderChatsList()
+                                                    ) : (
+                                                        <Group>
+                                                            <Div>
+                                                                <Button 
+                                                                    size="l" 
+                                                                    mode="secondary" 
+                                                                    stretched
+                                                                    onClick={() => this.setState({ activeView: 'search_users' })}
+                                                                >
+                                                                    Найти пользователей
+                                                                </Button>
+                                                            </Div>
+                                                            {this.renderContactsList()}
+                                                        </Group>
+                                                    )}
+                                                </Panel>
+                                                
+                                                <Panel id="search_users">
+                                                    <PanelHeader
+                                                        before={
+                                                            <PanelHeaderBack 
+                                                                onClick={() => this.setState({ activeView: 'chats', activeTab: 'contacts' })}
+                                                            />
+                                                        }
+                                                    >
+                                                        Поиск пользователей
+                                                    </PanelHeader>
+                                                    {this.renderSearchUsers()}
+                                                </Panel>
+                                            </View>
+                                        )}
+                                    </SplitCol>
+                                </SplitLayout>
+                                
+                                <ModalRoot activeModal={this.state.modal}>
+                                    {/* Здесь будут модальные окна */}
+                                </ModalRoot>
+                            </AppRoot>
+                        </AdaptivityProvider>
+                    </ConfigProvider>
+                );
+            }
+        }
+
+        const container = document.getElementById('root');
+        const root = ReactDOM.createRoot(container);
+        root.render(<MessengerApp />);
+    </script>
 </body>
 </html>

@@ -18,8 +18,8 @@
     <!-- Babel для JSX -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
-    <!-- VKUI -->
-    <script src="https://unpkg.com/@vkontakte/vkui/dist/vkui.js"></script>
+    <!-- VKUI - используем UMD версию -->
+    <script src="https://unpkg.com/@vkontakte/vkui@6.0.0/dist/vkui.umd.js"></script>
 
     <script type="text/babel">
         const { 
@@ -48,12 +48,11 @@
         } = VKUI;
 
         // Получаем иконки из VKUI
-        const VKIcons = VKUI.VKIcons || {};
-        const Icon24User = VKIcons.Icon24User || (() => React.createElement('span', null, '👤'));
-        const Icon24Mail = VKIcons.Icon24Mail || (() => React.createElement('span', null, '✉️'));
-        const Icon24Lock = VKIcons.Icon24Lock || (() => React.createElement('span', null, '🔒'));
-        const Icon24Phone = VKIcons.Icon24Phone || (() => React.createElement('span', null, '📱'));
-        const Icon24Chevron = VKIcons.Icon24Chevron || (() => React.createElement('span', null, '-chevron'));
+        const Icon24User = VKUI.VKIcons?.Icon24User || function() { return React.createElement('span', null, '👤'); };
+        const Icon24Mail = VKUI.VKIcons?.Icon24Mail || function() { return React.createElement('span', null, '✉️'); };
+        const Icon24Lock = VKUI.VKIcons?.Icon24Lock || function() { return React.createElement('span', null, '🔒'); };
+        const Icon24Phone = VKUI.VKIcons?.Icon24Phone || function() { return React.createElement('span', null, '📱'); };
+        const Icon24Chevron = VKUI.VKIcons?.Icon24Chevron || function() { return React.createElement('span', null, '▶'); };
 
         class MessengerApp extends React.Component {
             constructor(props) {

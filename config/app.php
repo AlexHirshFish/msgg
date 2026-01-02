@@ -3,15 +3,20 @@
  * Основной конфигурационный файл приложения
  */
 
-// Загрузка переменных окружения
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-$dotenv->load();
+// Загрузка переменных окружения (опционально)
+if (file_exists(__DIR__ . '/../.env')) {
+    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
+    $dotenv->load();
+} else {
+    // Если .env файл не существует, используем значения по умолчанию
+    // или переменные окружения, установленные в Railway
+}
 
 return [
     'app' => [
         'name' => $_ENV['APP_NAME'] ?? 'Messenger',
-        'env' => $_ENV['APP_ENV'] ?? 'local',
-        'debug' => filter_var($_ENV['APP_DEBUG'] ?? true, FILTER_VALIDATE_BOOLEAN),
+        'env' => $_ENV['APP_ENV'] ?? 'production',
+        'debug' => filter_var($_ENV['APP_DEBUG'] ?? false, FILTER_VALIDATE_BOOLEAN),
         'url' => $_ENV['APP_URL'] ?? 'http://localhost:8000',
     ],
     
@@ -42,7 +47,7 @@ return [
     ],
     
     'storage' => [
-        'path' => $_ENV['STORAGE_PATH'] ?? __DIR__ . '/storage',
+        'path' => $_ENV['STORAGE_PATH'] ?? __DIR__ . '/../storage',
         'max_file_size' => $_ENV['MAX_FILE_SIZE'] ?? 10485760, // 10MB
         'allowed_types' => explode(',', $_ENV['ALLOWED_FILE_TYPES'] ?? 'jpg,jpeg,png,gif,mp3,wav,pdf,doc,docx,txt'),
     ],

@@ -43,14 +43,17 @@
             Snackbar,
             Avatar,
             CellButton,
-            Separator
+            Separator,
+            PanelHeaderBack
         } = VKUI;
 
-        const Icon24User = VKIcons.Icon24User;
-        const Icon24Mail = VKIcons.Icon24Mail;
-        const Icon24Lock = VKIcons.Icon24Lock;
-        const Icon24Phone = VKIcons.Icon24Phone;
-        const Icon24Chevron = VKIcons.Icon24Chevron;
+        // Получаем иконки из VKUI
+        const VKIcons = VKUI.VKIcons || {};
+        const Icon24User = VKIcons.Icon24User || (() => React.createElement('span', null, '👤'));
+        const Icon24Mail = VKIcons.Icon24Mail || (() => React.createElement('span', null, '✉️'));
+        const Icon24Lock = VKIcons.Icon24Lock || (() => React.createElement('span', null, '🔒'));
+        const Icon24Phone = VKIcons.Icon24Phone || (() => React.createElement('span', null, '📱'));
+        const Icon24Chevron = VKIcons.Icon24Chevron || (() => React.createElement('span', null, '-chevron'));
 
         class MessengerApp extends React.Component {
             constructor(props) {
@@ -225,7 +228,7 @@
                             placeholder="+7 999 123-45-67 или email@example.com"
                             value={this.state.identifier}
                             onChange={(e) => this.handleInputChange('identifier', e.target.value)}
-                            before={<Icon24User />}
+                            before={React.createElement(Icon24User)}
                         />
                     </FormItem>
                     
@@ -235,7 +238,7 @@
                             placeholder="Введите пароль"
                             value={this.state.password}
                             onChange={(e) => this.handleInputChange('password', e.target.value)}
-                            before={<Icon24Lock />}
+                            before={React.createElement(Icon24Lock)}
                         />
                     </FormItem>
                     
@@ -280,7 +283,7 @@
                             size="l"
                             stretched
                             mode="tertiary"
-                            before={<img src="https://telegram.org/img/t_logo.png" width="20" height="20" alt="Telegram" />}
+                            before={React.createElement('img', {src: 'https://telegram.org/img/t_logo.png', width: '20', height: '20', alt: 'Telegram'})}
                             onClick={this.handleTelegramLogin}
                         >
                             Войти через Telegram
@@ -299,7 +302,7 @@
                                     placeholder="+7 999 123-45-67"
                                     value={this.state.phone}
                                     onChange={(e) => this.handleInputChange('phone', e.target.value)}
-                                    before={<Icon24Phone />}
+                                    before={React.createElement(Icon24Phone)}
                                 />
                             </FormItem>
                             
@@ -332,7 +335,7 @@
                                     placeholder="email@example.com"
                                     value={this.state.email}
                                     onChange={(e) => this.handleInputChange('email', e.target.value)}
-                                    before={<Icon24Mail />}
+                                    before={React.createElement(Icon24Mail)}
                                 />
                             </FormItem>
                             
@@ -360,7 +363,7 @@
                                     placeholder="Минимум 6 символов"
                                     value={this.state.password}
                                     onChange={(e) => this.handleInputChange('password', e.target.value)}
-                                    before={<Icon24Lock />}
+                                    before={React.createElement(Icon24Lock)}
                                 />
                             </FormItem>
                             
@@ -425,9 +428,9 @@
                                                 <PanelHeader 
                                                     separator={false}
                                                     before={
-                                                        <PanelHeaderBack 
-                                                            onClick={() => this.setState({ activeView: 'login', showVerificationStep: false })}
-                                                        />
+                                                        React.createElement(PanelHeaderBack, {
+                                                            onClick: () => this.setState({ activeView: 'login', showVerificationStep: false })
+                                                        })
                                                     }
                                                 >
                                                     Регистрация
@@ -451,7 +454,7 @@
 
         const container = document.getElementById('root');
         const root = ReactDOM.createRoot(container);
-        root.render(<MessengerApp />);
+        root.render(React.createElement(MessengerApp));
     </script>
 </body>
 </html>

@@ -113,15 +113,17 @@
             withModalRootContext
         } = VKUI;
 
-        const Icon28MessageOutline = VKIcons.Icon28MessageOutline;
-        const Icon28Users3Outline = VKIcons.Icon28Users3Outline;
-        const Icon28SearchOutline = VKIcons.Icon28SearchOutline;
-        const Icon28AddOutline = VKIcons.Icon28AddOutline;
-        const Icon28AttachOutline = VKIcons.Icon28AttachOutline;
-        const Icon28MicrophoneOutline = VKIcons.Icon28MicrophoneOutline;
-        const Icon28Send = VKIcons.Icon28Send;
-        const Icon28MoreHorizontal = VKIcons.Icon28MoreHorizontal;
-        const Icon24Chevron = VKIcons.Icon24Chevron;
+        // Получаем иконки из VKUI
+        const VKIcons = VKUI.VKIcons || {};
+        const Icon28MessageOutline = VKIcons.Icon28MessageOutline || (() => React.createElement('span', null, '💬'));
+        const Icon28Users3Outline = VKIcons.Icon28Users3Outline || (() => React.createElement('span', null, '👥'));
+        const Icon28SearchOutline = VKIcons.Icon28SearchOutline || (() => React.createElement('span', null, '🔍'));
+        const Icon28AddOutline = VKIcons.Icon28AddOutline || (() => React.createElement('span', null, '➕'));
+        const Icon28AttachOutline = VKIcons.Icon28AttachOutline || (() => React.createElement('span', null, '📎'));
+        const Icon28MicrophoneOutline = VKIcons.Icon28MicrophoneOutline || (() => React.createElement('span', null, '🎤'));
+        const Icon28Send = VKIcons.Icon28Send || (() => React.createElement('span', null, '➡️'));
+        const Icon28MoreHorizontal = VKIcons.Icon28MoreHorizontal || (() => React.createElement('span', null, '⋮'));
+        const Icon24Chevron = VKIcons.Icon24Chevron || (() => React.createElement('span', null, '-chevron'));
 
         class MessengerApp extends React.Component {
             constructor(props) {
@@ -421,7 +423,7 @@
                         <SimpleCell
                             key={contact.id}
                             before={<Avatar src={contact.avatar} size={48} />}
-                            after={<Icon24Chevron />}
+                            after={React.createElement(Icon24Chevron)}
                             onClick={() => this.openChat(contact.id)}
                         >
                             {`${contact.first_name} ${contact.last_name}`}
@@ -475,7 +477,7 @@
                             <Div style={{ backgroundColor: 'white', padding: '8px' }}>
                                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                                     <IconButton>
-                                        <Icon28AttachOutline />
+                                        {React.createElement(Icon28AttachOutline)}
                                     </IconButton>
                                     
                                     {this.state.isRecording ? (
@@ -504,11 +506,11 @@
                                     <IconButton
                                         onClick={this.state.isRecording ? this.stopRecording : this.startRecording}
                                     >
-                                        <Icon28MicrophoneOutline 
-                                            style={{ 
+                                        {React.createElement(Icon28MicrophoneOutline, {
+                                            style: { 
                                                 color: this.state.isRecording ? '#e64646' : '#2688eb' 
-                                            }} 
-                                        />
+                                            }
+                                        })}
                                     </IconButton>
                                     
                                     {!this.state.isRecording && (
@@ -516,7 +518,7 @@
                                             disabled={!this.state.newMessage.trim()}
                                             onClick={this.sendMessage}
                                         >
-                                            <Icon28Send />
+                                            {React.createElement(Icon28Send)}
                                         </IconButton>
                                     )}
                                 </div>
@@ -661,13 +663,13 @@
                                                 <Panel id="messages">
                                                     <PanelHeader
                                                         before={
-                                                            <PanelHeaderBack 
-                                                                onClick={() => this.setState({ currentChatId: null })}
-                                                            />
+                                                            React.createElement(PanelHeaderBack, {
+                                                                onClick: () => this.setState({ currentChatId: null })
+                                                            })
                                                         }
                                                         after={
                                                             <IconButton onClick={() => this.logout()}>
-                                                                <Icon28MoreHorizontal />
+                                                                {React.createElement(Icon28MoreHorizontal)}
                                                             </IconButton>
                                                         }
                                                     >
@@ -682,7 +684,7 @@
                                                     <PanelHeader
                                                         before={
                                                             <IconButton onClick={() => this.logout()}>
-                                                                <Icon28MoreHorizontal />
+                                                                {React.createElement(Icon28MoreHorizontal)}
                                                             </IconButton>
                                                         }
                                                     >
@@ -694,14 +696,14 @@
                                                             selected={this.state.activeTab === 'chats'}
                                                             onClick={() => this.setState({ activeTab: 'chats' })}
                                                         >
-                                                            <Icon28MessageOutline />
+                                                            {React.createElement(Icon28MessageOutline)}
                                                             Чаты
                                                         </Tab>
                                                         <Tab
                                                             selected={this.state.activeTab === 'contacts'}
                                                             onClick={() => this.setState({ activeTab: 'contacts' })}
                                                         >
-                                                            <Icon28Users3Outline />
+                                                            {React.createElement(Icon28Users3Outline)}
                                                             Контакты
                                                         </Tab>
                                                     </Tabs>
@@ -732,9 +734,9 @@
                                                 <Panel id="search_users">
                                                     <PanelHeader
                                                         before={
-                                                            <PanelHeaderBack 
-                                                                onClick={() => this.setState({ activeView: 'chats', activeTab: 'contacts' })}
-                                                            />
+                                                            React.createElement(PanelHeaderBack, {
+                                                                onClick: () => this.setState({ activeView: 'chats', activeTab: 'contacts' })
+                                                            })
                                                         }
                                                     >
                                                         Поиск пользователей
@@ -758,7 +760,7 @@
 
         const container = document.getElementById('root');
         const root = ReactDOM.createRoot(container);
-        root.render(<MessengerApp />);
+        root.render(React.createElement(MessengerApp));
     </script>
 </body>
 </html>

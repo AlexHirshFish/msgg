@@ -4,6 +4,7 @@ namespace App\Database;
 
 use PDO;
 use PDOException;
+use App\Services\LoggerService;
 
 class Database
 {
@@ -35,17 +36,36 @@ class Database
             // Установка кодировки
             $pdo->exec("SET NAMES {$config['charset']} COLLATE {$config['collation']}");
             
+            LoggerService::info("Database connection established", [
+                'host' => $config['host'],
+                'database' => $config['database']
+            ]);
+            
             return $pdo;
         } catch (PDOException $e) {
+            LoggerService::error("Database connection failed", [
+                'error' => $e->getMessage(),
+                'host' => $config['host'],
+                'database' => $config['database']
+            ]);
             throw new \Exception("Database connection failed: " . $e->getMessage());
         }
     }
     
     public static function query(string $sql, array $params = []): \PDOStatement
     {
-        $stmt = self::getInstance()->prepare($sql);
-        $stmt->execute($params);
-        return $stmt;
+        try {
+            $stmt = self::getInstance()->prepare($sql);
+            $stmt->execute($params);
+            return $stmt;
+        } catch (PDOException $e) {
+            LoggerService::error("Database query failed", [
+                'error' => $e->getMessage(),
+                'sql' => $sql,
+                'params' => $params
+            ]);
+            throw $e;
+        }
     }
     
     public static function fetchAll(string $sql, array $params = []): array

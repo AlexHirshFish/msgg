@@ -38,4 +38,4 @@ RUN chmod +x start.sh
 RUN ls -la
 
 # Команда запуска
-CMD ["sh", "-c", "php -S 0.0.0.0:$PORT -t ."]
+CMD ["sh", "-c", "php -S 0.0.0.0:$PORT -t . -f index.php"]

@@ -51,4 +51,9 @@ return [
         'host' => $_ENV['WEBSOCKET_HOST'] ?? '127.0.0.1',
         'port' => $_ENV['WEBSOCKET_PORT'] ?? 8080,
     ],
+    
+    'logging' => [
+        'enabled' => true,
+        'file' => $_ENV['LOG_FILE'] ?? '/tmp/app.log',
+    ],
 ];

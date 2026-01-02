@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест VKUI</title>
+</head>
+<body>
+    <div id="root">
+        <h1>Тест VKUI</h1>
+        <div id="status"></div>
+        <div id="components"></div>
+    </div>
+
+    <!-- VKUI -->
+    <script src="https://unpkg.com/@vkontakte/vkui@6.0.0/dist/index.umd.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusDiv = document.getElementById('status');
+            const componentsDiv = document.getElementById('components');
+            
+            if (typeof VKUI !== 'undefined') {
+                statusDiv.innerHTML = '<p style="color: green;">VKUI загружен! Объект доступен.</p>';
+                
+                // Проверим, какие свойства есть в VKUI
+                const properties = Object.keys(VKUI);
+                componentsDiv.innerHTML = '<h2>Доступные компоненты и свойства:</h2><ul>' + 
+                    properties.map(prop => `<li>${prop}</li>`).join('') + 
+                    '</ul>';
+                
+                // Проверим наличие основных компонентов
+                const requiredComponents = [
+                    'ConfigProvider', 'AdaptivityProvider', 'AppRoot', 
+                    'SplitLayout', 'SplitCol', 'View', 'Panel', 'PanelHeader'
+                ];
+                
+                const availableComponents = requiredComponents.filter(comp => 
+                    typeof VKUI[comp] !== 'undefined'
+                );
+                
+                componentsDiv.innerHTML += '<h3>Необходимые компоненты:</h3><ul>' + 
+                    requiredComponents.map(comp => 
+                        `<li style="${availableComponents.includes(comp) ? 'color: green;' : 'color: red;'}">
+                            ${comp} - ${availableComponents.includes(comp) ? 'Доступен' : 'НЕТ'}
+                        </li>`
+                    ).join('') + 
+                    '</ul>';
+            } else {
+                statusDiv.innerHTML = '<p style="color: red;">VKUI НЕ загружен! Объект не найден.</p>';
+            }
+        });
+    </script>
+</body>
+</html>

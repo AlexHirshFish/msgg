@@ -6,93 +6,295 @@
     <title>Messenger - Вход</title>
     
     <!-- VKUI CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/@vkontakte/vkui/dist/vkui.css">
+    <link rel="stylesheet" href="https://unpkg.com/@vkontakte/vkui@6.0.0/dist/vkui.css">
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #fff;
+        }
+        
+        .vkui__root {
+            height: 100vh;
+        }
+        
+        .login-container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo h1 {
+            color: #2688eb;
+            margin: 0;
+            font-size: 28px;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .error-message {
+            color: #e64646;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+        
+        .success-message {
+            color: #4bb34b;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+        
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+            color: #818c99;
+        }
+        
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e1e3e6;
+            z-index: 1;
+        }
+        
+        .divider span {
+            position: relative;
+            background: white;
+            z-index: 2;
+            padding: 0 10px;
+        }
+        
+        .telegram-login {
+            width: 100%;
+            padding: 10px;
+            background: #2aabee;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        .switch-view {
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
-    <div id="root"></div>
+    <div id="root" class="vkui__root">
+        <div class="login-container">
+            <div class="logo">
+                <h1>Messenger</h1>
+                <p>Быстрые и надежные сообщения</p>
+            </div>
 
-    <!-- React & ReactDOM -->
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    
-    <!-- Babel для JSX -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
-    <!-- VKUI - используем UMD версию -->
-    <script src="https://unpkg.com/@vkontakte/vkui@6.0.0/dist/vkui.umd.js"></script>
+            <div id="login-form">
+                <div class="form-group">
+                    <label>Телефон или Email</label>
+                    <input 
+                        type="text" 
+                        id="login-identifier" 
+                        placeholder="+7 999 123-45-67 или email@example.com"
+                        class="vkui__input"
+                    />
+                </div>
 
-    <script type="text/babel">
-        const { 
-            AdaptivityProvider, 
-            ConfigProvider, 
-            AppRoot, 
-            SplitLayout, 
-            SplitCol, 
-            View, 
-            Panel, 
-            PanelHeader, 
-            FormLayout, 
-            FormItem, 
-            Input, 
-            Button, 
-            Group, 
-            Div, 
-            Title, 
-            Text, 
-            Link,
-            Snackbar,
-            Avatar,
-            CellButton,
-            Separator,
-            PanelHeaderBack
-        } = VKUI;
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input 
+                        type="password" 
+                        id="login-password" 
+                        placeholder="Введите пароль"
+                        class="vkui__input"
+                    />
+                </div>
 
-        // Получаем иконки из VKUI
-        const Icon24User = VKUI.VKIcons?.Icon24User || function() { return React.createElement('span', null, '👤'); };
-        const Icon24Mail = VKUI.VKIcons?.Icon24Mail || function() { return React.createElement('span', null, '✉️'); };
-        const Icon24Lock = VKUI.VKIcons?.Icon24Lock || function() { return React.createElement('span', null, '🔒'); };
-        const Icon24Phone = VKUI.VKIcons?.Icon24Phone || function() { return React.createElement('span', null, '📱'); };
-        const Icon24Chevron = VKUI.VKIcons?.Icon24Chevron || function() { return React.createElement('span', null, '▶'); };
+                <div id="login-error" class="error-message" style="display: none;"></div>
+                <div id="login-success" class="success-message" style="display: none;"></div>
 
-        class MessengerApp extends React.Component {
-            constructor(props) {
-                super(props);
-                this.state = {
-                    activeView: 'login',
-                    phone: '',
-                    email: '',
-                    password: '',
-                    firstName: '',
-                    lastName: '',
-                    verificationCode: '',
-                    identifier: '',
-                    isLoading: false,
-                    error: '',
-                    success: '',
-                    showVerificationStep: false
-                };
-            }
+                <button type="button" id="login-btn" class="vkui__button">
+                    Войти
+                </button>
+                
+                <div class="switch-view">
+                    <button type="button" id="show-register-btn" class="vkui__button vkui__button--mode-secondary">
+                        Регистрация
+                    </button>
+                </div>
+            </div>
 
-            handleInputChange = (field, value) => {
-                this.setState({
-                    [field]: value,
-                    error: '',
-                    success: ''
-                });
+            <div id="register-form" style="display: none;">
+                <div class="form-group">
+                    <label>Номер телефона</label>
+                    <input 
+                        type="tel" 
+                        id="register-phone" 
+                        placeholder="+7 999 123-45-67"
+                        class="vkui__input"
+                    />
+                </div>
+
+                <button 
+                    type="button" 
+                    id="send-verification-btn"
+                    class="vkui__button"
+                    style="display: block; margin: 0 auto 16px;"
+                >
+                    Отправить код
+                </button>
+
+                <div id="verification-step" style="display: none;">
+                    <div class="form-group">
+                        <label>Код подтверждения</label>
+                        <input 
+                            type="text" 
+                            id="verification-code" 
+                            placeholder="Введите 6-значный код"
+                            class="vkui__input"
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input 
+                            type="email" 
+                            id="register-email" 
+                            placeholder="email@example.com"
+                            class="vkui__input"
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Имя</label>
+                        <input 
+                            type="text" 
+                            id="register-first-name" 
+                            placeholder="Ваше имя"
+                            class="vkui__input"
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Фамилия</label>
+                        <input 
+                            type="text" 
+                            id="register-last-name" 
+                            placeholder="Ваша фамилия"
+                            class="vkui__input"
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Пароль</label>
+                        <input 
+                            type="password" 
+                            id="register-password" 
+                            placeholder="Минимум 6 символов"
+                            class="vkui__input"
+                        />
+                    </div>
+
+                    <div id="register-error" class="error-message" style="display: none;"></div>
+                    <div id="register-success" class="success-message" style="display: none;"></div>
+
+                    <button type="button" id="register-btn" class="vkui__button">
+                        Зарегистрироваться
+                    </button>
+                </div>
+                
+                <div class="switch-view">
+                    <button type="button" id="show-login-btn" class="vkui__button vkui__button--mode-secondary">
+                        Назад к входу
+                    </button>
+                </div>
+            </div>
+
+            <div class="divider">
+                <span>или</span>
+            </div>
+
+            <button class="telegram-login" id="telegram-login-btn">
+                Войти через Telegram
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Состояние приложения
+            const state = {
+                activeView: 'login',
+                phone: '',
+                email: '',
+                password: '',
+                firstName: '',
+                lastName: '',
+                verificationCode: '',
+                identifier: '',
+                isLoading: false,
+                error: '',
+                success: '',
+                showVerificationStep: false
             };
 
-            validatePhone = (phone) => {
-                const cleaned = phone.replace(/\D/g, '');
-                return cleaned.length >= 10;
-            };
+            // Элементы формы
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+            const showRegisterBtn = document.getElementById('show-register-btn');
+            const showLoginBtn = document.getElementById('show-login-btn');
+            const sendVerificationBtn = document.getElementById('send-verification-btn');
+            const verificationStep = document.getElementById('verification-step');
+            const loginBtn = document.getElementById('login-btn');
+            const registerBtn = document.getElementById('register-btn');
+            const telegramLoginBtn = document.getElementById('telegram-login-btn');
 
-            sendVerificationCode = async () => {
-                if (!this.validatePhone(this.state.phone)) {
-                    this.setState({ error: 'Введите корректный номер телефона' });
+            // Поля формы
+            const loginIdentifier = document.getElementById('login-identifier');
+            const loginPassword = document.getElementById('login-password');
+            const registerPhone = document.getElementById('register-phone');
+            const verificationCode = document.getElementById('verification-code');
+            const registerEmail = document.getElementById('register-email');
+            const registerFirstName = document.getElementById('register-first-name');
+            const registerLastName = document.getElementById('register-last-name');
+            const registerPassword = document.getElementById('register-password');
+
+            // Обработчики событий
+            showRegisterBtn.addEventListener('click', function() {
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+            });
+
+            showLoginBtn.addEventListener('click', function() {
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+                verificationStep.style.display = 'none';
+            });
+
+            sendVerificationBtn.addEventListener('click', async function() {
+                const phone = registerPhone.value.trim();
+                if (!validatePhone(phone)) {
+                    showError('register-error', 'Введите корректный номер телефона');
                     return;
                 }
-
-                this.setState({ isLoading: true });
 
                 try {
                     const response = await fetch('/api/auth.php', {
@@ -102,84 +304,31 @@
                         },
                         body: JSON.stringify({
                             action: 'send_verification',
-                            phone: this.state.phone
+                            phone: phone
                         })
                     });
 
                     const data = await response.json();
 
                     if (data.success) {
-                        this.setState({
-                            success: 'Код подтверждения отправлен',
-                            showVerificationStep: true,
-                            isLoading: false
-                        });
+                        showSuccess('register-success', 'Код подтверждения отправлен');
+                        verificationStep.style.display = 'block';
                     } else {
-                        this.setState({
-                            error: data.error || 'Ошибка отправки кода',
-                            isLoading: false
-                        });
+                        showError('register-error', data.error || 'Ошибка отправки кода');
                     }
                 } catch (error) {
-                    this.setState({
-                        error: 'Ошибка сети',
-                        isLoading: false
-                    });
+                    showError('register-error', 'Ошибка сети');
                 }
-            };
+            });
 
-            register = async () => {
-                if (!this.state.firstName || !this.state.lastName || !this.state.email || !this.state.password || !this.state.verificationCode) {
-                    this.setState({ error: 'Заполните все поля' });
+            loginBtn.addEventListener('click', async function() {
+                const identifier = loginIdentifier.value.trim();
+                const password = loginPassword.value;
+
+                if (!identifier || !password) {
+                    showError('login-error', 'Введите логин и пароль');
                     return;
                 }
-
-                this.setState({ isLoading: true });
-
-                try {
-                    const response = await fetch('/api/auth.php', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            action: 'register',
-                            phone: this.state.phone,
-                            email: this.state.email,
-                            password: this.state.password,
-                            first_name: this.state.firstName,
-                            last_name: this.state.lastName,
-                            verification_code: this.state.verificationCode
-                        })
-                    });
-
-                    const data = await response.json();
-
-                    if (data.success) {
-                        localStorage.setItem('token', data.token);
-                        localStorage.setItem('user', JSON.stringify(data.user));
-                        window.location.href = 'messenger.html';
-                    } else {
-                        this.setState({
-                            error: data.error || 'Ошибка регистрации',
-                            isLoading: false
-                        });
-                    }
-                } catch (error) {
-                    this.setState({
-                        error: 'Ошибка сети',
-                        isLoading: false
-                    });
-                }
-            };
-
-            login = async () => {
-                if (!this.state.identifier || !this.state.password) {
-                    this.setState({ error: 'Введите логин и пароль' });
-                    return;
-                }
-
-                this.setState({ isLoading: true });
 
                 try {
                     const response = await fetch('/api/auth.php', {
@@ -189,8 +338,8 @@
                         },
                         body: JSON.stringify({
                             action: 'login',
-                            identifier: this.state.identifier,
-                            password: this.state.password
+                            identifier: identifier,
+                            password: password
                         })
                     });
 
@@ -201,259 +350,89 @@
                         localStorage.setItem('user', JSON.stringify(data.user));
                         window.location.href = 'messenger.html';
                     } else {
-                        this.setState({
-                            error: data.error || 'Неверные данные',
-                            isLoading: false
-                        });
+                        showError('login-error', data.error || 'Неверные данные');
                     }
                 } catch (error) {
-                    this.setState({
-                        error: 'Ошибка сети',
-                        isLoading: false
-                    });
+                    showError('login-error', 'Ошибка сети');
                 }
-            };
+            });
 
-            handleTelegramLogin = () => {
-                // Здесь будет интеграция с Telegram Login Widget
+            registerBtn.addEventListener('click', async function() {
+                const phone = registerPhone.value.trim();
+                const email = registerEmail.value.trim();
+                const password = registerPassword.value;
+                const firstName = registerFirstName.value.trim();
+                const lastName = registerLastName.value.trim();
+                const verificationCodeValue = verificationCode.value.trim();
+
+                if (!firstName || !lastName || !email || !password || !verificationCodeValue) {
+                    showError('register-error', 'Заполните все поля');
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/api/auth.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            action: 'register',
+                            phone: phone,
+                            email: email,
+                            password: password,
+                            first_name: firstName,
+                            last_name: lastName,
+                            verification_code: verificationCodeValue
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        localStorage.setItem('token', data.token);
+                        localStorage.setItem('user', JSON.stringify(data.user));
+                        window.location.href = 'messenger.html';
+                    } else {
+                        showError('register-error', data.error || 'Ошибка регистрации');
+                    }
+                } catch (error) {
+                    showError('register-error', 'Ошибка сети');
+                }
+            });
+
+            telegramLoginBtn.addEventListener('click', function() {
                 alert('Telegram login будет реализован отдельно');
-            };
+            });
 
-            renderLoginForm = () => (
-                <FormLayout>
-                    <FormItem top="Телефон или Email">
-                        <Input
-                            type="text"
-                            placeholder="+7 999 123-45-67 или email@example.com"
-                            value={this.state.identifier}
-                            onChange={(e) => this.handleInputChange('identifier', e.target.value)}
-                            before={React.createElement(Icon24User)}
-                        />
-                    </FormItem>
-                    
-                    <FormItem top="Пароль">
-                        <Input
-                            type="password"
-                            placeholder="Введите пароль"
-                            value={this.state.password}
-                            onChange={(e) => this.handleInputChange('password', e.target.value)}
-                            before={React.createElement(Icon24Lock)}
-                        />
-                    </FormItem>
-                    
-                    {this.state.error && (
-                        <Div style={{color: '#e64646', fontSize: '14px', marginTop: '8px'}}>
-                            {this.state.error}
-                        </Div>
-                    )}
-                    
-                    {this.state.success && (
-                        <Div style={{color: '#4bb34b', fontSize: '14px', marginTop: '8px'}}>
-                            {this.state.success}
-                        </Div>
-                    )}
-                    
-                    <FormItem>
-                        <Button
-                            size="l"
-                            stretched
-                            loading={this.state.isLoading}
-                            onClick={this.login}
-                        >
-                            Войти
-                        </Button>
-                    </FormItem>
-                    
-                    <FormItem>
-                        <Button
-                            size="l"
-                            stretched
-                            mode="secondary"
-                            onClick={() => this.setState({ activeView: 'register' })}
-                        >
-                            Регистрация
-                        </Button>
-                    </FormItem>
-                    
-                    <Separator style={{ margin: '20px 0' }} />
-                    
-                    <FormItem>
-                        <Button
-                            size="l"
-                            stretched
-                            mode="tertiary"
-                            before={React.createElement('img', {src: 'https://telegram.org/img/t_logo.png', width: '20', height: '20', alt: 'Telegram'})}
-                            onClick={this.handleTelegramLogin}
-                        >
-                            Войти через Telegram
-                        </Button>
-                    </FormItem>
-                </FormLayout>
-            );
-
-            renderRegisterForm = () => (
-                <FormLayout>
-                    {!this.state.showVerificationStep ? (
-                        <>
-                            <FormItem top="Номер телефона">
-                                <Input
-                                    type="tel"
-                                    placeholder="+7 999 123-45-67"
-                                    value={this.state.phone}
-                                    onChange={(e) => this.handleInputChange('phone', e.target.value)}
-                                    before={React.createElement(Icon24Phone)}
-                                />
-                            </FormItem>
-                            
-                            <FormItem>
-                                <Button
-                                    size="l"
-                                    stretched
-                                    disabled={!this.validatePhone(this.state.phone)}
-                                    loading={this.state.isLoading}
-                                    onClick={this.sendVerificationCode}
-                                >
-                                    Отправить код
-                                </Button>
-                            </FormItem>
-                        </>
-                    ) : (
-                        <>
-                            <FormItem top="Код подтверждения">
-                                <Input
-                                    type="text"
-                                    placeholder="Введите 6-значный код"
-                                    value={this.state.verificationCode}
-                                    onChange={(e) => this.handleInputChange('verificationCode', e.target.value)}
-                                />
-                            </FormItem>
-                            
-                            <FormItem top="Email">
-                                <Input
-                                    type="email"
-                                    placeholder="email@example.com"
-                                    value={this.state.email}
-                                    onChange={(e) => this.handleInputChange('email', e.target.value)}
-                                    before={React.createElement(Icon24Mail)}
-                                />
-                            </FormItem>
-                            
-                            <FormItem top="Имя">
-                                <Input
-                                    type="text"
-                                    placeholder="Ваше имя"
-                                    value={this.state.firstName}
-                                    onChange={(e) => this.handleInputChange('firstName', e.target.value)}
-                                />
-                            </FormItem>
-                            
-                            <FormItem top="Фамилия">
-                                <Input
-                                    type="text"
-                                    placeholder="Ваша фамилия"
-                                    value={this.state.lastName}
-                                    onChange={(e) => this.handleInputChange('lastName', e.target.value)}
-                                />
-                            </FormItem>
-                            
-                            <FormItem top="Пароль">
-                                <Input
-                                    type="password"
-                                    placeholder="Минимум 6 символов"
-                                    value={this.state.password}
-                                    onChange={(e) => this.handleInputChange('password', e.target.value)}
-                                    before={React.createElement(Icon24Lock)}
-                                />
-                            </FormItem>
-                            
-                            <FormItem>
-                                <Button
-                                    size="l"
-                                    stretched
-                                    loading={this.state.isLoading}
-                                    onClick={this.register}
-                                >
-                                    Зарегистрироваться
-                                </Button>
-                            </FormItem>
-                        </>
-                    )}
-                    
-                    {this.state.error && (
-                        <Div style={{color: '#e64646', fontSize: '14px', marginTop: '8px'}}>
-                            {this.state.error}
-                        </Div>
-                    )}
-                    
-                    {this.state.success && (
-                        <Div style={{color: '#4bb34b', fontSize: '14px', marginTop: '8px'}}>
-                            {this.state.success}
-                        </Div>
-                    )}
-                    
-                    <FormItem>
-                        <Button
-                            size="l"
-                            stretched
-                            mode="tertiary"
-                            onClick={() => this.setState({ activeView: 'login', showVerificationStep: false })}
-                        >
-                            Назад к входу
-                        </Button>
-                    </FormItem>
-                </FormLayout>
-            );
-
-            render() {
-                return (
-                    <ConfigProvider>
-                        <AdaptivityProvider>
-                            <AppRoot>
-                                <SplitLayout header={<PanelHeader separator={false} />}>
-                                    <SplitCol spaced>
-                                        <View activePanel={this.state.activeView}>
-                                            <Panel id="login">
-                                                <PanelHeader>Вход в Messenger</PanelHeader>
-                                                <Group>
-                                                    <Div style={{textAlign: 'center', marginBottom: '30px'}}>
-                                                        <Title level="1" style={{color: '#2688eb'}}>Messenger</Title>
-                                                        <Text>Быстрые и надежные сообщения</Text>
-                                                    </Div>
-                                                    {this.renderLoginForm()}
-                                                </Group>
-                                            </Panel>
-                                            
-                                            <Panel id="register">
-                                                <PanelHeader 
-                                                    separator={false}
-                                                    before={
-                                                        React.createElement(PanelHeaderBack, {
-                                                            onClick: () => this.setState({ activeView: 'login', showVerificationStep: false })
-                                                        })
-                                                    }
-                                                >
-                                                    Регистрация
-                                                </PanelHeader>
-                                                <Group>
-                                                    <Div style={{textAlign: 'center', marginBottom: '30px'}}>
-                                                        <Title level="2">Создайте аккаунт</Title>
-                                                    </Div>
-                                                    {this.renderRegisterForm()}
-                                                </Group>
-                                            </Panel>
-                                        </View>
-                                    </SplitCol>
-                                </SplitLayout>
-                            </AppRoot>
-                        </AdaptivityProvider>
-                    </ConfigProvider>
-                );
+            // Вспомогательные функции
+            function validatePhone(phone) {
+                const cleaned = phone.replace(/\D/g, '');
+                return cleaned.length >= 10;
             }
-        }
 
-        const container = document.getElementById('root');
-        const root = ReactDOM.createRoot(container);
-        root.render(React.createElement(MessengerApp));
+            function showError(elementId, message) {
+                const element = document.getElementById(elementId);
+                element.textContent = message;
+                element.style.display = 'block';
+                
+                // Скрываем через 5 секунд
+                setTimeout(() => {
+                    element.style.display = 'none';
+                }, 5000);
+            }
+
+            function showSuccess(elementId, message) {
+                const element = document.getElementById(elementId);
+                element.textContent = message;
+                element.style.display = 'block';
+                
+                // Скрываем через 5 секунд
+                setTimeout(() => {
+                    element.style.display = 'none';
+                }, 5000);
+            }
+        });
     </script>
 </body>
 </html>

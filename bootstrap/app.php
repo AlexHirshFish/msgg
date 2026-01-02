@@ -69,25 +69,31 @@ set_error_handler(function ($severity, $message, $file, $line) {
 
 // Обработчик исключений
 set_exception_handler(function ($exception) {
-    $logMessage = "Uncaught exception: " . $exception->getMessage();
-    error_log($logMessage);
-    
-    // Логируем в наш сервис
-    if (class_exists('\\App\\Services\\LoggerService')) {
-        \App\Services\LoggerService::error($logMessage, [
-            'exception' => get_class($exception),
-            'file' => $exception->getFile(),
-            'line' => $exception->getLine(),
-            'trace' => $exception->getTraceAsString()
+    // Не отправляем заголовки, если они уже были отправлены
+    if (!headers_sent()) {
+        $logMessage = "Uncaught exception: " . $exception->getMessage();
+        error_log($logMessage);
+        
+        // Логируем в наш сервис
+        if (class_exists('\\App\\Services\\LoggerService')) {
+            \App\Services\LoggerService::error($logMessage, [
+                'exception' => get_class($exception),
+                'file' => $exception->getFile(),
+                'line' => $exception->getLine(),
+                'trace' => $exception->getTraceAsString()
+            ]);
+        }
+        
+        // Возвращаем HTTP 500 ошибку
+        http_response_code(500);
+        header('Content-Type: application/json');
+        echo json_encode([
+            'success' => false,
+            'error' => 'Internal Server Error',
+            'message' => config('app.debug') ? $exception->getMessage() : 'An error occurred'
         ]);
+    } else {
+        // Если заголовки уже отправлены, просто логируем ошибку
+        error_log("Uncaught exception after headers sent: " . $exception->getMessage());
     }
-    
-    // Возвращаем HTTP 500 ошибку
-    http_response_code(500);
-    header('Content-Type: application/json');
-    echo json_encode([
-        'success' => false,
-        'error' => 'Internal Server Error',
-        'message' => config('app.debug') ? $exception->getMessage() : 'An error occurred'
-    ]);
 });

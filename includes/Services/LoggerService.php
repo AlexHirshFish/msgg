@@ -19,8 +19,10 @@ class LoggerService
         // Логируем в файл
         file_put_contents($config['file'], $logMessage, FILE_APPEND | LOCK_EX);
         
-        // Также логируем в stdout для Railway
-        echo $logMessage;
+        // В режиме отладки можем логировать в stdout
+        if (config('app.debug')) {
+            error_log($logMessage);
+        }
     }
     
     public static function info($message, $context = [])

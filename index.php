@@ -19,8 +19,10 @@ $path = parse_url($requestUri, PHP_URL_PATH);
 
 if ($path === '/' || $path === '') {
     // Корневой маршрут - перенаправляем на login.html
-    header('Location: /public/login.html');
-    exit();
+    if (!headers_sent()) {
+        header('Location: /public/login.html');
+        exit();
+    }
 } elseif (strpos($path, '/api/') === 0) {
     // API маршруты
     $apiFile = __DIR__ . $path;
@@ -77,11 +79,15 @@ if ($path === '/' || $path === '') {
 }
 
 // Если ничего не найдено, возвращаем 404
-http_response_code(404);
-header('Content-Type: application/json');
-LoggerService::warning("404 Not Found", ['path' => $path]);
-echo json_encode([
-    'success' => false,
-    'error' => 'Not Found',
-    'path' => $path
-]);
+if (!headers_sent()) {
+    http_response_code(404);
+    header('Content-Type: application/json');
+    LoggerService::warning("404 Not Found", ['path' => $path]);
+    echo json_encode([
+        'success' => false,
+        'error' => 'Not Found',
+        'path' => $path
+    ]);
+} else {
+    LoggerService::warning("404 Not Found after headers sent", ['path' => $path]);
+}
